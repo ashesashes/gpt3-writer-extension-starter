@@ -1,13 +1,13 @@
 const getKey = () => {
     return new Promise((resolve, reject) => {
-        chrome.storage.local.get(['openai-key'], (result) => {
-            if (result['openai-key']) {
-                const decodedKey = atob(result(['openai-key']));
-                resolve(decodedKey); 
-            }
-        });
+      chrome.storage.local.get(['openai-key'], (result) => {
+        if (result['openai-key']) {
+          const decodedKey = atob(result['openai-key']);
+          resolve(decodedKey);
+        }
+      });
     });
-}
+  };
 
     const generate = async (prompt) => {
         const key = await getKey();
@@ -41,7 +41,24 @@ const generateCompletionAction = async (info) => {
         Write me a detailed table of contents for a blog post with the Title below.
         
         Title:
-        `
+        `;
+
+        const baseCompletion = await generate(
+            `${basePromptPrefix}${selectionText}`
+        );
+
+        const secondPrompt = `
+        Take the table of contents and title of the blog post below and generate a blog post written in thwe style of Paul Graham. Make it feel like a story. Don't just list the points. Go deep into each one. Explain why.
+      
+        Title: ${selectionText}
+      
+        Table of Contents: ${baseCompletion.text}
+      
+        Blog Post:
+         `;
+
+    // Call your second prompt
+    const secondPromptCompletion = await generate(secondPrompt);
     } catch(error) {
         console.log(error); 
     }
