@@ -9,6 +9,22 @@ const getKey = () => {
     });
   };
 
+  const sendMessage = (content) => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const activeTab = tabs[0].id;
+  
+      chrome.tabs.sendMessage(
+        activeTab,
+        { message: 'inject', content },
+        (response) => {
+          if (response.status === 'failed') {
+            console.log('injection failed.');
+          }
+        }
+      );
+    });
+  };
+
   const generate = async (prompt) => {
     
     const key = await getKey();
@@ -34,36 +50,43 @@ const getKey = () => {
     return completion.choices.pop();
   }
 
-const generateCompletionAction = async (info) => {
-    try{
-        const {selectionText } = info; 
-        const basePromptPrefix = `
-        Write me a detailed table of contents for a blog post with the Title below.
+  const generateCompletionAction = async (info) => {
+    try {
+      // Send mesage with generating text (this will be like a loading indicator)
+      sendMessage('generating...');
+  
+      const { selectionText } = info;
+      const basePromptPrefix = `
+        Write me a detailed table of contents for a blog post with the title below.
         
         Title:
         `;
-
+  
         const baseCompletion = await generate(
-            `${basePromptPrefix}${selectionText}`
+          `${basePromptPrefix}${selectionText}`
         );
-        console.log(baseCompletion.text)
-
+        
         const secondPrompt = `
-        Take the table of contents and title of the blog post below and generate a blog post written in thwe style of Paul Graham. Make it feel like a story. Don't just list the points. Go deep into each one. Explain why.
-      
-        Title: ${selectionText}
-      
-        Table of Contents: ${baseCompletion.text}
-      
-        Blog Post:
-         `;
-
-    // Call your second prompt
-    const secondPromptCompletion = await generate(secondPrompt);
-    } catch(error) {
-        console.log(error); 
+          Take the table of contents and title of the blog post below and generate a blog post written in thwe style of Paul Graham. Make it feel like a story. Don't just list the points. Go deep into each one. Explain why.
+          
+          Title: ${selectionText}
+          
+          Table of Contents: ${baseCompletion.text}
+          
+          Blog Post:
+            `;
+        
+        const secondPromptCompletion = await generate(secondPrompt);
+        
+        // Send the output when we're all done
+        sendMessage(secondPromptCompletion.text);
+    } catch (error) {
+      console.log(error);
+  
+      // Add this here as well to see if we run into any errors!
+      sendMessage(error.toString());
     }
-};
+  };
 
 chrome.runtime.onInstalled.addListener(() => {
     chrome.contextMenus.create({
