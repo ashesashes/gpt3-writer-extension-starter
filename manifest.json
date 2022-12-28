@@ -1,6 +1,6 @@
 {
-  "name": "Magic email draft generator",
-  "description": "Highlight your topic and we'll do the rest",
+  "name": "magic blog post generator",
+  "description": "highlight your blog post title, we'll generate the rest",
   "version": "1.0",
   "manifest_version": 3,
   "icons": {
@@ -11,11 +11,11 @@
   },
   "action": {
     "default_popup": "index.html",
-    "default_title": "Generate email draft"
+    "default_title": "Generate blog post"
   },
+ 
   "background": {
     "service_worker": "scripts/contextMenuServiceWorker.js"
   },
-"permissions": ["contextMenus", "tabs", "storage"]
-
+  "permissions": ["contextMenus", "tabs", "storage"]
 }
