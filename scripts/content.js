@@ -25,10 +25,11 @@ const insert = (content) => {
         }else {
             p.textContent = content; 
         }
-    });
-
     //Insert the HTML one at a time 
     element.appendChild(p); 
+    });
+
+  
 
     //On Success return true 
     return true; 
